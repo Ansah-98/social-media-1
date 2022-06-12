@@ -1,13 +1,18 @@
+from multiprocessing import context
 from django.shortcuts import render,redirect
 from .models import Room,Topic
 from .forms import RoomForm
 from django.db.models import  Q
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate,login,logout
 # Create your views here.
 
 def loginPage(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -23,9 +28,33 @@ def loginPage(request):
             return redirect('home')
         else:
             messages.error(request,'wrong credentials')
+    
+    context= {'obj':'obj'}
+    return render(request,'socials/login_register.html', context )
+
+def signUp(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        c_password = request.POST['c-password']
+        email= request.POST['email']
+
+        if c_password != password :
+            messages.error(request,'confirmed password not the same password')
+        user = User.objects.filter(username= username).first() or User.objects.filter(email= email).first()
+
+        if user is not None:
+            messages.error(request,f'{user.username} already exist')
+        
+        else:
+            user = User.objects.create_user(username= username,password =password,email =email)
+            user.save()
+            login(request,user)
+            return redirect('home')
     return render(request,'socials/login_register.html')
 def signOut(request):
     
+
     logout(request)
     return redirect('login')
 def home(request):  
@@ -52,6 +81,7 @@ def room(request,pk):
     context = {'room':room}
     return render(request,'socials/room.html',context)
 
+@login_required(login_url='login')
 def createroom(request):
     form = RoomForm
     if request.method == 'POST':

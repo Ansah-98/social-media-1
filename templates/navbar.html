@@ -3,10 +3,12 @@
     <h5>LOGO</h5>
 </a>
 {%if request.user.is_authenticated%}
+<h2>Hello <b>{{request.user.username}}</b></h2>
 <a href="{%url 'logout' %}"><h3>logout</h3></a>
 {%else%}
 <a href="{%url 'login' %}"><h3>login here </h3></a>
 {%endif%}
+
 <form action="{%url 'home' %}" method="GET" >
     <input type="text"  name="q"  placeholder="search rooms ...">   
 </form>

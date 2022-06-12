@@ -1,14 +1,62 @@
 {%extends 'main.html'%}
 
 {%block content%}
+{%if obj %}
+<div>
+    <form action="" method="POST">
+        {%csrf_token%}
+        <label for="">username</label>
+        <input type="text" name="username" placeholder=" username here ..">
+        <label for="">password</label>
+        <input type="password" name="password" placeholder=" password here">
+        <input type="submit" value="submit" id="">
+        </form>
+        
+        <p>
+            <form action="{%url 'register' %}" >
+                {%csrf_token%}
+                <input type="submit" value="Register" ></form>
+        </p>
+        
+</div>
 
-<form action="{%url 'login' %}" method="POST">
-{%csrf_token%}
-<label for="">username</label>
-<input type="text" name="username" placeholder=" username here ..">
-<label for="">password</label>
-<input type="password" name="password" placeholder=" password here">
-<input type="submit" value="submit" id="">
-</form>
+{%else%}
+<div>
+    <form action="" method="POST">
+        {%csrf_token%}
+        <ul>
+        <li>
+            <label for="">username</label>
+            <input type="text" name="username" placeholder=" username here ..">
+        </li>
+        <li>
+            <p>
+            <label for="">password</label>
+            <input type="password" name="password" placeholder=" password here">
+        
+            </p>
+        </li>
+        <li>
+            <label for="">email</label>
+            <input type="email" name="email" id="">
+        </li>
+        <li>
+            <p>
+            <label for="">confirm password</label>
+            <input type="password" name="c-password" >
+        </p>
+        </li>
+
+        <input type="submit" value="submit" id="">
+
+        </ul>
+        
+    </form>
+
+    <p>
+        <a href="{%url 'login' %}">have an account ? login here</a>
+    </p>
+</div>
+{%endif%}
 
 {%endblock content%}
