@@ -36,7 +36,7 @@
     {%endif%}
     <h3>@{{room.host.username}}</h3>
     <h4>
-        {{room.id}}  <a href="">{{room.name}}</a>
+      <a href="{%url 'room' room.id%}">{{room.name}}</a>
     </h4>
     {%endfor%}
 

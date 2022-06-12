@@ -28,7 +28,7 @@ class Room(models.Model):
         return self.name
 
 class Message(models.Model):
-    User = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     body = models.TextField(max_length= 300 ,null= True, blank= True )
     room = models.ForeignKey(Room, on_delete = models.CASCADE,)
     created = models.DateTimeField(auto_now_add =True  )

@@ -1,6 +1,6 @@
 from multiprocessing import context
 from django.shortcuts import render,redirect
-from .models import Room,Topic
+from .models import Room,Topic,Message
 from .forms import RoomForm
 from django.db.models import  Q
 from django.contrib.auth.models import User
@@ -78,7 +78,15 @@ def home(request):
 def room(request,pk):
 
     room = Room.objects.get(id = pk)
-    context = {'room':room}
+    room_messages = room.message_set.all()
+    if request.method == 'POST':
+        comment = request.POST['comment']
+        new_comment= Message.objects.create(user=request.user, room = room, body=comment)
+        new_comment.save()
+        return redirect('room', pk = room.id)
+
+
+    context = {'room':room,'room_messages':room_messages}
     return render(request,'socials/room.html',context)
 
 @login_required(login_url='login')
