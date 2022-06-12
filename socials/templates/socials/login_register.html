@@ -1,0 +1,14 @@
+{%extends 'main.html'%}
+
+{%block content%}
+
+<form action="{%url 'login' %}" method="POST">
+{%csrf_token%}
+<label for="">username</label>
+<input type="text" name="username" placeholder=" username here ..">
+<label for="">password</label>
+<input type="password" name="password" placeholder=" password here">
+<input type="submit" value="submit" id="">
+</form>
+
+{%endblock content%}
