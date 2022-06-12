@@ -1,34 +1,55 @@
 {%extends 'main.html'%}
 
 {%block content%}
-<p>
-    <small>
-        @{{room.user.username}} posted {{room.name}}
-    </small>
-</p>
-<h3>{{room.description}}</h3>
-<hr>
-<div class="comment-wrapper">
-    <h3><b>Conversations</b></h3>
-    {%for room_message in room_messages%}
-    <small>@{{room_message.user}} posted {{room_message.created|timesince}} ago</small>
-    <p>
-        {{room_message.body}}
-    </p>
-    <hr>
-    {%endfor%}
-    <h1>{{room.description}}</h1>
-</div>
-{%if request.user.is_authenticated%}
-<div class="comment-form">
-    <form action="" method="POST">
-        {%csrf_token%}
-        <input type="text" name="comment" placeholder="write comments here" >
-    </form> 
 
+<style>
+    .room-container{
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+    }
+</style>
+
+<div class="room-container">
+    <div>
+        <p>
+            <small>
+                @{{room.user.username}} posted {{room.name}}
+            </small>
+        </p>
+        <h3>{{room.description}}</h3>
+        <hr>
+        <div class="comment-wrapper">
+            <h3><b>Conversations</b></h3>
+            {%for room_message in room_messages%}
+            <small>@{{room_message.user}} posted {{room_message.created|timesince}} ago</small>
+            <p>
+                {{room_message.body}}
+            </p>
+            <hr>
+            {%endfor%}
+            <h1>{{room.description}}</h1>
+        </div>
+        {%if request.user.is_authenticated%}
+        <div class="comment-form">
+            <form action="" method="POST">
+                {%csrf_token%}
+                <input type="text" name="comment" placeholder="write comments here" >
+            </form> 
+        
+        </div>
+        {%else%}
+        <h2>login to comment under this post</h2>
+        {%endif%}
+        
+    </div>
+
+    <div>
+        <h2>Participants</h2>
+        <hr>
+        {%for participant in participants%}
+        <h4>@{{participant.username}}</h4>
+        {%endfor%}
+    </div>
 </div>
-{%else%}
-<h2>login to comment under this post</h2>
-{%endif%}
 
 {%endblock content%}

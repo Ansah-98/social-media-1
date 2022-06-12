@@ -78,15 +78,16 @@ def home(request):
 def room(request,pk):
 
     room = Room.objects.get(id = pk)
+    participant =room.participants.all()
     room_messages = room.message_set.all()
     if request.method == 'POST':
         comment = request.POST['comment']
         new_comment= Message.objects.create(user=request.user, room = room, body=comment)
+        room.participants.add(request.user)
         new_comment.save()
         return redirect('room', pk = room.id)
 
-
-    context = {'room':room,'room_messages':room_messages}
+    context = {'room':room,'room_messages':room_messages, 'participants':participant}
     return render(request,'socials/room.html',context)
 
 @login_required(login_url='login')
