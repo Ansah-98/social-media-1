@@ -1,4 +1,5 @@
 from multiprocessing import context
+from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from .models import Room,Topic,Message
 from .forms import RoomForm
@@ -11,7 +12,7 @@ from django.contrib.auth import authenticate,login,logout
 
 def loginPage(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('home') 
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -58,21 +59,26 @@ def signOut(request):
     logout(request)
     return redirect('login')
 def home(request):  
+
     q = request.GET.get('q')
     if q is None:
         topic = Topic.objects.all()
         rooms = Room.objects.all()
+        room_messages = Message.objects.all()
+
     else:
+        room_messages = Message.objects.filter(Q(room__topic__name__icontains=q)|
+        Q(user__username__icontains=q))
         topic = Topic.objects.filter(title__icontains = q)
-        
         rooms = Room.objects.filter(Q(topic__title__icontains =q)|
         Q(description__icontains =q)|
         Q(name__icontains=q)|
         Q(host__username__icontains=q))
+
     
 
     room_count = rooms.count()
-    context={'rooms':rooms, 'topics': topic, 'room_count':room_count}
+    context={'rooms':rooms, 'topics': topic, 'room_count':room_count, 'message':room_messages}
     return render(request,'socials/index.html',context)
 
 def room(request,pk):
@@ -116,8 +122,28 @@ def updateRoom(request,pk):
 
 def deleteRoom(request,pk):
     room = Room.objects.get(pk=pk)
+    
     if request.method =='P0ST':
         room.delete()
         return redirect('home')
-    
     return render(request, 'socials/delete.html',{'obj':room.name})
+    
+def deleteComment(request, pk):
+    message = Message.objects.get(pk = pk)
+    if request.user !=message.user:
+        return HttpResponse('you are not allowed to delete this post')
+
+    context = {'obj':message.body[:10]}
+    if request.method == 'POST':
+        message.delete()
+        return redirect('home') 
+    return render(request, 'socials/delete.html',context)
+
+def userProfile(request,pk):
+    user = User.objects.get(pk=pk)
+    rooms = user.room_set.all()
+    mesages = user.message_set.all()
+    topic = Topic.objects.all()
+    #rooms = Room.objects.filter(host = user )
+    context = {'user':user, 'rooms':rooms, 'message':mesages, 'topics':topic}
+    return render(request, 'socials/profile.html',context )

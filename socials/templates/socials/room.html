@@ -21,7 +21,12 @@
         <div class="comment-wrapper">
             <h3><b>Conversations</b></h3>
             {%for room_message in room_messages%}
+
             <small>@{{room_message.user}} posted {{room_message.created|timesince}} ago</small>
+
+            {%if request.user == room_message.user %}
+            <a href="{%url 'delete-message' room_message.id %}"> <small>delete</small> </a>    
+            {%endif%}
             <p>
                 {{room_message.body}}
             </p>
