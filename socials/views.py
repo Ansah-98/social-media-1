@@ -2,7 +2,7 @@ from multiprocessing import context
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from .models import Room,Topic,Message
-from .forms import RoomForm
+from .forms import RoomForm,UserForm
 from django.db.models import  Q
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -31,7 +31,7 @@ def loginPage(request):
             messages.error(request,'wrong credentials')
     
     context= {'obj':'obj'}
-    return render(request,'socials/login_register.html', context )
+    return render(request,'socials/login-register.html', context )
 
 def signUp(request):
     if request.method == 'POST':
@@ -52,7 +52,7 @@ def signUp(request):
             user.save()
             login(request,user)
             return redirect('home')
-    return render(request,'socials/login_register.html')
+    return render(request,'socials/login-register.html')
 def signOut(request):
     
 
@@ -77,7 +77,7 @@ def home(request):
 
     
     room_count = rooms.count()
-    context={'rooms':rooms, 'topics': topic, 'room_count':room_count, 'message':room_messages , }
+    context={'rooms':rooms, 'topics': topic[:5], 'room_count':room_count, 'message':room_messages , }
     return render(request,'socials/index.html',context)
 
 def room(request,pk):
@@ -144,9 +144,10 @@ def deleteComment(request, pk):
     if request.user !=message.user:
         return HttpResponse('you are not allowed to delete this post')
 
-    context = {'obj':message.body[:10]}
+    context = {'obj':message.body[:30]}
+    print(request.method)
     if request.method == 'POST':
-        message.delete()
+        Message.objects.filter(pk = pk).delete()
         return redirect('home') 
     return render(request, 'socials/delete.html',context)
 
@@ -158,3 +159,23 @@ def userProfile(request,pk):
     #rooms = Room.objects.filter(host = user )
     context = {'user':user, 'rooms':rooms, 'message':mesages, 'topics':topic}
     return render(request, 'socials/profile.html',context )
+@login_required(login_url='login')
+def updateUser(request,):
+    user = request.user
+    form = UserForm(instance= user)
+    if form.is_valid():
+        form.save()
+        return redirect('profile', pk= user.id)
+
+    context = {'user':user,'form':form}
+    return render(request,'socials/edit-user.html',context)
+
+
+def topicPage(request):
+    q = request.GET.get('q')
+    if q is None:
+        topics = Topic.objects.all()
+    else:
+        topics = Topic.objects.filter(Q(title__icontains=q))
+    return render(request,'socials/topics.html',{'topics':topics})
+    

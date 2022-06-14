@@ -10,4 +10,6 @@ path('login', views.loginPage,name ='login'),
 path('logout',views.signOut,name='logout'),
 path('register',views.signUp,name='register'),
 path('delete-message/<str:pk>',views.deleteComment, name= 'delete-message'),
-path('profile/<str:pk>',views.userProfile,name ='profile')]
+path('profile/<str:pk>',views.userProfile,name ='profile'),
+path('user-edit/',views.updateUser,name = 'edit-user'),
+path('topic-page',views.topicPage,name='topic-page')]
