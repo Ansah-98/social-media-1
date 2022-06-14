@@ -67,18 +67,17 @@ def home(request):
         room_messages = Message.objects.all()
 
     else:
-        room_messages = Message.objects.filter(Q(room__topic__name__icontains=q)|
+        room_messages = Message.objects.filter(Q(room__topic__title__icontains=q)|
         Q(user__username__icontains=q))
-        topic = Topic.objects.filter(title__icontains = q)
+        topic = Topic.objects.filter(title__icontains = q) 
         rooms = Room.objects.filter(Q(topic__title__icontains =q)|
         Q(description__icontains =q)|
         Q(name__icontains=q)|
         Q(host__username__icontains=q))
 
     
-
     room_count = rooms.count()
-    context={'rooms':rooms, 'topics': topic, 'room_count':room_count, 'message':room_messages}
+    context={'rooms':rooms, 'topics': topic, 'room_count':room_count, 'message':room_messages , }
     return render(request,'socials/index.html',context)
 
 def room(request,pk):
@@ -98,27 +97,39 @@ def room(request,pk):
 
 @login_required(login_url='login')
 def createroom(request):
-    form = RoomForm
+    form = RoomForm()
+    topics = Topic.objects.all()
     if request.method == 'POST':
-        form = RoomForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-
-    context = {'form':form}
-    return render(request,'socials/room_form.html',context)
+        topic_name = request.POST['topic']
+        topic,created = Topic.objects.get_or_create(title = topic_name)
+        Room.objects.create(
+        host = request.user ,
+        topic = topic,
+        name = request.POST['name'],
+        description = request.POST['description']
+    )
+        return redirect('home') 
+    context = {'form':form,'topics':topics}
+    return render(request,'socials/create-room.html',context)
 
 def updateRoom(request,pk):
     room = Room.objects.get(id = pk)
-    form = RoomForm(instance =room)
-    context = {'form':form}
+    form = RoomForm(instance = room)
+    topics= Topic.objects.all()
+    context = {'form':form,'topics':topics, 'room':room}
     if request.method == 'POST':
-        form = RoomForm(request.POST, instance = room)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
+        topic_name = request.POST['topic']
+        topic,created = Topic.objects.get_or_create(title = topic_name)
+        room.name  = request.POST['name']
+        room.description = request.POST['description']
+        room.topic = topic
+        room.save()
+        # form = RoomForm(request.POST, instance = room)
+        # if form.is_valid():
+        #     form.save()
+        return redirect('home')
     
-    return render(request,'socials/room_form.html', context)
+    return render(request,'socials/create-room.html', context)
 
 def deleteRoom(request,pk):
     room = Room.objects.get(pk=pk)
