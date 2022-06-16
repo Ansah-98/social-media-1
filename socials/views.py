@@ -1,13 +1,13 @@
 from multiprocessing import context
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
-from .models import Room,Topic,Message
+from .models import Room,Topic,Message,User
 from .forms import RoomForm,UserForm
 from django.db.models import  Q
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate,login,logout
+
 # Create your views here.
 
 def loginPage(request):
@@ -15,14 +15,17 @@ def loginPage(request):
         return redirect('home') 
 
     if request.method == 'POST':
-        username = request.POST['username']
+        email = request.POST['email']
         password = request.POST['password']
 
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(email=email)
+        
+            username =user.username 
         except :
             messages.error(request,'user is not found')
-        user = authenticate(request, username = username, password=password)  
+        user = authenticate(request, email = email , password=password)  
+        print(user)
 
         if user is not None:
             login(request,user) 
@@ -35,10 +38,12 @@ def loginPage(request):
 
 def signUp(request):
     if request.method == 'POST':
+        name = request.POST['name']
         username = request.POST['username']
         password = request.POST['password']
         c_password = request.POST['c-password']
         email= request.POST['email']
+        image =request.FILES.get('img')
 
         if c_password != password :
             messages.error(request,'confirmed password not the same password')
@@ -48,10 +53,17 @@ def signUp(request):
             messages.error(request,f'{user.username} already exist')
         
         else:
-            user = User.objects.create_user(username= username,password =password,email =email)
-            user.save()
-            login(request,user)
-            return redirect('home')
+            if image != None:
+                user = User.objects.create_user(username = username,password =password,email =email , profile_img = image ,name = name)
+                user.save()
+                login(request,user)
+                return redirect('home')
+            else:
+                user = User.objects.create_user(username = username,password =password,email =email,name = name)
+                user.save()
+                login(request,user)
+
+                return redirect('home')
     return render(request,'socials/login-register.html')
 def signOut(request):
     
@@ -162,12 +174,15 @@ def userProfile(request,pk):
 @login_required(login_url='login')
 def updateUser(request,):
     user = request.user
-    form = UserForm(instance= user)
-    if form.is_valid():
-        form.save()
-        return redirect('profile', pk= user.id)
+    print(user)
+    form =UserForm(instance =user)
+    if request.method =='POST':
+        form = UserForm(request.POST,request.FILES,instance= user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', pk= user.id)
 
-    context = {'user':user,'form':form}
+    context = {'user':user,'form': form}
     return render(request,'socials/edit-user.html',context)
 
 
@@ -178,4 +193,8 @@ def topicPage(request):
     else:
         topics = Topic.objects.filter(Q(title__icontains=q))
     return render(request,'socials/topics.html',{'topics':topics})
-    
+
+def activities(request):
+    room_messages = Message.objects.all()
+
+    return render(request,'socials/activity.html',{'message':room_messages,})  

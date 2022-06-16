@@ -17,8 +17,8 @@
             <form class="form" action="" method="POST">
               {%csrf_token%}
               <div class="form__group form__group">
-                <label for="room_name">Username</label>
-                <input id="username" name="username" type="text" placeholder="e.g. dennis_ivy" />
+                <label for="room_name">Email</label>
+                <input id="username" name="email" type="text" placeholder="e.g. dennis_ivy" />
               </div>
               <div class="form__group">
                 <label for="password">Password</label>
@@ -61,7 +61,6 @@
       
       
       {%else%}
-
         <div class="container">
           <div class="layout__box">
             <div class="layout__boxHeader">
@@ -75,9 +74,20 @@
               <form class="form" action="" method="POST">
                 {%csrf_token%}
                 <div class="form__group form__group">
+                  <label for="room_name">Profile Image</label>
+                  <input id="username" name="img" type="file"  />
+                </div>
+
+                <div class="form__group form__group">
                   <label for="room_name">email</label>
                   <input id="username" name="email" type="text" placeholder="e.g. dennis_ivy" />
                 </div>
+
+                <div class="form__group form__group">
+                  <label for="room_name">Name</label>
+                  <input id="username" name="name" type="text" placeholder="e.g. dennis_ivy" />
+                </div>
+                
               
                 <div class="form__group form__group">
                   <label for="room_name">Username</label>
